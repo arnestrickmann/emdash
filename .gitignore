@@ -69,3 +69,4 @@ worktrees/
 
 .env
 .cursor
+.codex/config.toml
