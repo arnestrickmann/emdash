@@ -18,6 +18,7 @@ import { CornerDownLeft } from 'lucide-react';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from './ui/tooltip';
 import { useAutoScrollOnTaskSwitch } from '@/hooks/useAutoScrollOnTaskSwitch';
 import { useTerminalViewportWheelForwarding } from '@/hooks/useTerminalViewportWheelForwarding';
+import { useTerminalSearch } from '@/hooks/useTerminalSearch';
 import { getTaskEnvVars } from '@shared/task/envVars';
 import { rpc } from '@/lib/rpc';
 import { useWorkspaceConnection } from '../hooks/useWorkspaceConnection';
@@ -28,6 +29,7 @@ import { formatCommentsForAgent } from '@/lib/formatCommentsForAgent';
 import { buildPromptInjectionPayload } from '@/lib/terminalInjection';
 import { TaskScopeProvider } from './TaskScopeContext';
 import TaskContextBadges from './TaskContextBadges';
+import { TerminalSearchOverlay } from './TerminalSearchOverlay';
 
 interface Props {
   task: Task;
@@ -473,8 +475,26 @@ const MultiAgentTask: React.FC<Props> = ({
 
   // Ref to control terminal focus and viewport scrolling imperatively.
   const activeTerminalRef = useRef<TerminalPaneHandle>(null);
+  const activeTerminalContainerRef = useRef<HTMLDivElement | null>(null);
   const handleTerminalViewportWheelForwarding =
     useTerminalViewportWheelForwarding(activeTerminalRef);
+  const activeTerminalId = variants[activeTabIndex]?.worktreeId
+    ? `${variants[activeTabIndex].worktreeId}-main`
+    : null;
+  const {
+    isSearchOpen,
+    searchQuery,
+    searchStatus,
+    searchInputRef,
+    closeSearch,
+    handleSearchQueryChange,
+    stepSearch,
+  } = useTerminalSearch({
+    terminalId: activeTerminalId,
+    containerRef: activeTerminalContainerRef,
+    enabled: Boolean(activeTerminalId),
+    onCloseFocus: () => activeTerminalRef.current?.focus(),
+  });
 
   // Auto-scroll and focus when task or active tab changes
   useEffect(() => {
@@ -637,7 +657,8 @@ const MultiAgentTask: React.FC<Props> = ({
                   onWheelCapture={handleTerminalViewportWheelForwarding}
                 >
                   <div
-                    className={`mx-auto h-full max-w-4xl overflow-hidden rounded-md ${
+                    ref={isActive ? activeTerminalContainerRef : undefined}
+                    className={`relative mx-auto h-full max-w-4xl overflow-hidden rounded-md ${
                       v.agent === 'mistral'
                         ? isDark
                           ? 'bg-[#202938]'
@@ -647,6 +668,16 @@ const MultiAgentTask: React.FC<Props> = ({
                           : 'bg-white'
                     }`}
                   >
+                    <TerminalSearchOverlay
+                      isOpen={isActive && isSearchOpen}
+                      fullWidth
+                      searchQuery={searchQuery}
+                      searchStatus={searchStatus}
+                      searchInputRef={searchInputRef}
+                      onQueryChange={handleSearchQueryChange}
+                      onStep={stepSearch}
+                      onClose={closeSearch}
+                    />
                     <TerminalPane
                       ref={isActive ? activeTerminalRef : undefined}
                       id={`${v.worktreeId}-main`}
