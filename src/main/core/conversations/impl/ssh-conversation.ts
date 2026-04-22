@@ -17,6 +17,10 @@ import { events } from '@main/lib/events';
 import { log } from '@main/lib/logger';
 import { capture } from '@main/lib/telemetry';
 import { buildAgentCommand } from './agent-command';
+import {
+  ensureProviderTerminalConfig,
+  getRemoteProviderTerminalConfig,
+} from './provider-terminal-config';
 
 const DEFAULT_COLS = 80;
 const DEFAULT_ROWS = 24;
@@ -79,11 +83,13 @@ export class SshConversationProvider implements ConversationProvider {
 
     if (this.sessions.has(sessionId)) return;
 
+    const remoteFs = new SshFileSystem(this.proxy, '/');
+
     await claudeTrustService.maybeAutoTrustSsh({
       providerId: conversation.providerId,
       cwd: this.taskPath,
       exec: this.exec,
-      remoteFs: new SshFileSystem(this.proxy, '/'),
+      remoteFs,
     });
 
     const { command, args } = await buildAgentCommand({
@@ -109,7 +115,26 @@ export class SshConversationProvider implements ConversationProvider {
       resume: isResuming,
     };
 
-    const sshCommand = resolveSshCommand('agent', cfg, this.taskEnvVars);
+    let providerTerminalEnv: Record<string, string> = {};
+    try {
+      providerTerminalEnv = await ensureProviderTerminalConfig(
+        getRemoteProviderTerminalConfig(conversation.providerId),
+        async (filePath, content) => {
+          await remoteFs.write(filePath, content);
+        }
+      );
+    } catch (error) {
+      log.warn('SshConversationProvider: failed to prepare provider terminal config', {
+        providerId: conversation.providerId,
+        taskPath: this.taskPath,
+        error: String(error),
+      });
+    }
+
+    const sshCommand = resolveSshCommand('agent', cfg, {
+      ...providerTerminalEnv,
+      ...this.taskEnvVars,
+    });
 
     const result = await openSsh2Pty(this.proxy.client, {
       id: sessionId,

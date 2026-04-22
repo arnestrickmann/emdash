@@ -23,6 +23,7 @@ import { events } from '@main/lib/events';
 import { log } from '@main/lib/logger';
 import { capture } from '@main/lib/telemetry';
 import { buildAgentCommand } from './agent-command';
+import { prepareLocalProviderTerminalEnv } from './provider-terminal-config';
 
 const DEFAULT_COLS = 80;
 const DEFAULT_ROWS = 24;
@@ -118,6 +119,16 @@ export class LocalConversationProvider implements ConversationProvider {
     const ptyId = makePtyId(conversation.providerId, conversation.id);
     const port = agentHookService.getPort();
     const token = agentHookService.getToken();
+    let providerTerminalEnv: Record<string, string> = {};
+    try {
+      providerTerminalEnv = await prepareLocalProviderTerminalEnv(conversation.providerId);
+    } catch (error) {
+      log.warn('LocalConversationProvider: failed to prepare provider terminal config', {
+        providerId: conversation.providerId,
+        taskPath: this.taskPath,
+        error: String(error),
+      });
+    }
     const pty = spawnLocalPty({
       id: sessionId,
       command: spawnParams.command,
@@ -127,6 +138,7 @@ export class LocalConversationProvider implements ConversationProvider {
         ...buildAgentEnv({
           hook: port > 0 ? { port, ptyId, token } : undefined,
         }),
+        ...providerTerminalEnv,
         ...this.taskEnvVars,
       },
       cols: initialSize.cols,

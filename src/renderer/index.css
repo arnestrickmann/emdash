@@ -204,6 +204,22 @@
     --xterm-cursor-accent: #ffffff;
     --xterm-selection-bg: rgba(96, 165, 250, 0.3);
     --xterm-selection-fg: #0f172a;
+    --xterm-black: #000000;
+    --xterm-red: #cd3131;
+    --xterm-green: #0dbc79;
+    --xterm-yellow: #bf8803;
+    --xterm-blue: #0451a5;
+    --xterm-magenta: #bc05bc;
+    --xterm-cyan: #0598bc;
+    --xterm-white: #e5e5e5;
+    --xterm-bright-black: #666666;
+    --xterm-bright-red: #cd3131;
+    --xterm-bright-green: #14ce14;
+    --xterm-bright-yellow: #b5ba00;
+    --xterm-bright-blue: #0451a5;
+    --xterm-bright-magenta: #bc05bc;
+    --xterm-bright-cyan: #0598bc;
+    --xterm-bright-white: #a5a5a5;
     --xterm-bg-mistral: #ffffff;
 
     --foreground-diff-added: color(display-p3 0.426 0.694 0.426);
@@ -298,10 +314,27 @@
 
     /* xterm terminals */
     --xterm-bg: var(--background-1);
-    --xterm-fg: var(--foreground) --xterm-cursor: #1e293b;
+    --xterm-fg: var(--foreground);
+    --xterm-cursor: #f2f2f2;
     --xterm-cursor-accent: color(display-p3 0.484 0.484 0.484);
     --xterm-selection-bg: color(display-p3 0.033 0.197 0.37);
     --xterm-selection-fg: color(display-p3 0.49 0.72 1);
+    --xterm-black: #000000;
+    --xterm-red: #cd3131;
+    --xterm-green: #0dbc79;
+    --xterm-yellow: #e5e510;
+    --xterm-blue: #2472c8;
+    --xterm-magenta: #bc3fbc;
+    --xterm-cyan: #11a8cd;
+    --xterm-white: #e5e5e5;
+    --xterm-bright-black: #666666;
+    --xterm-bright-red: #f14c4c;
+    --xterm-bright-green: #23d18b;
+    --xterm-bright-yellow: #f5f543;
+    --xterm-bright-blue: #3b8eea;
+    --xterm-bright-magenta: #d670d6;
+    --xterm-bright-cyan: #29b8db;
+    --xterm-bright-white: #ffffff;
     --xterm-bg-mistral: #ffffff;
 
     --foreground-diff-added: color(display-p3 0.426 0.694 0.426);
@@ -414,6 +447,22 @@
     --xterm-cursor-accent: #000000;
     --xterm-selection-bg: rgba(96, 165, 250, 0.35);
     --xterm-selection-fg: #f9fafb;
+    --xterm-black: #000000;
+    --xterm-red: #cd3131;
+    --xterm-green: #0dbc79;
+    --xterm-yellow: #e5e510;
+    --xterm-blue: #2472c8;
+    --xterm-magenta: #bc3fbc;
+    --xterm-cyan: #11a8cd;
+    --xterm-white: #e5e5e5;
+    --xterm-bright-black: #666666;
+    --xterm-bright-red: #f14c4c;
+    --xterm-bright-green: #23d18b;
+    --xterm-bright-yellow: #f5f543;
+    --xterm-bright-blue: #3b8eea;
+    --xterm-bright-magenta: #d670d6;
+    --xterm-bright-cyan: #29b8db;
+    --xterm-bright-white: #ffffff;
     --xterm-bg-mistral: #141820;
 
     /* Diff decorations */
