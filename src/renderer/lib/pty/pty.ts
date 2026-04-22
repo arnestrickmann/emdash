@@ -4,7 +4,7 @@ import { Terminal, type ITerminalOptions } from '@xterm/xterm';
 import { ptyDataChannel } from '@shared/events/ptyEvents';
 import { events, rpc } from '@renderer/lib/ipc';
 import { cssVar } from '@renderer/utils/cssVars';
-import { log } from '@renderer/utils/logger';
+import { TerminalLinkController } from './terminal-links';
 import { ensureXtermHost } from './xterm-host';
 
 const SCROLLBACK_LINES = 100_000;
@@ -56,6 +56,9 @@ export class FrontendPty {
   static readonly all = new Set<FrontendPty>();
   readonly terminal: Terminal;
   readonly ownedContainer: HTMLDivElement;
+  private readonly linkController = new TerminalLinkController({
+    openExternal: (url) => rpc.app.openExternal(url),
+  });
   private offData: (() => void) | null = null;
   /** Last { cols, rows } sent to rpc.pty.resize(). Used by PaneSizingContext to skip redundant IPC calls. */
   lastSentDims: { cols: number; rows: number } | null = null;
@@ -80,21 +83,14 @@ export class FrontendPty {
       letterSpacing: 0,
       allowProposedApi: true,
       scrollOnUserInput: false,
-      linkHandler: {
-        activate: (_event: MouseEvent, text: string) => {
-          rpc.app.openExternal(text).catch((error) => {
-            log.warn('FrontendPty: failed to open external link', { text, error });
-          });
-        },
-      },
+      linkHandler: this.linkController.linkHandler,
       theme: buildTheme(theme),
     });
 
     const canvasAddon = new CanvasAddon();
     const webLinksAddon = new WebLinksAddon((event, uri) => {
-      event.preventDefault();
-      rpc.app.openExternal(uri).catch(() => {});
-    });
+      this.linkController.activate(event, uri);
+    }, this.linkController.webLinksOptions);
 
     this.terminal.loadAddon(canvasAddon);
     this.terminal.loadAddon(webLinksAddon);
@@ -162,7 +158,12 @@ export class FrontendPty {
    * the visible mount target have been disconnected.
    */
   unmount(): void {
+    this.linkController.reset();
     ensureXtermHost().appendChild(this.ownedContainer);
+  }
+
+  isLinkHovered(): boolean {
+    return this.linkController.isLinkHovered();
   }
 
   /**
@@ -172,6 +173,7 @@ export class FrontendPty {
    */
   dispose(): void {
     FrontendPty.all.delete(this);
+    this.linkController.reset();
     this.offData?.();
     this.offData = null;
     rpc.pty.unsubscribe(this.sessionId).catch(() => {});

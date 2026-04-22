@@ -63,7 +63,13 @@ const PtyPaneComponent = forwardRef<{ focus: () => void }, Props>(
 
     useImperativeHandle(ref, () => ({ focus }), [focus]);
 
-    const handleFocus = () => {
+    const handleMouseDown: React.MouseEventHandler<HTMLDivElement> = () => {
+      if (pty.isLinkHovered()) return;
+      focus();
+    };
+
+    const handleClick: React.MouseEventHandler<HTMLDivElement> = () => {
+      if (pty.isLinkHovered()) return;
       focus();
     };
 
@@ -127,8 +133,8 @@ const PtyPaneComponent = forwardRef<{ focus: () => void }, Props>(
             overflow: 'hidden',
             filter: contentFilter || undefined,
           }}
-          onClick={handleFocus}
-          onMouseDown={handleFocus}
+          onClick={handleClick}
+          onMouseDown={handleMouseDown}
           onDragOver={(event) => event.preventDefault()}
           onDrop={handleDrop}
         />
