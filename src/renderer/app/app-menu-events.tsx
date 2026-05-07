@@ -28,6 +28,16 @@ export function AppMenuEvents({ onOpenSettings }: { onOpenSettings?: () => boole
         navigate('task', { projectId, taskId });
         if (!conversationId) return;
 
+        const focusConversationTab = () => {
+          getTaskView(projectId, taskId)?.conversationTabs.setActiveTab(conversationId);
+        };
+
+        const view = getTaskView(projectId, taskId);
+        if (view?.conversationTabs.tabOrder.includes(conversationId)) {
+          focusConversationTab();
+          return;
+        }
+
         // Task view may not be provisioned yet — wait for the conversation tab to exist.
         const dispose = when(
           () => {
@@ -35,10 +45,14 @@ export function AppMenuEvents({ onOpenSettings }: { onOpenSettings?: () => boole
             return !!view && view.conversationTabs.tabOrder.includes(conversationId);
           },
           () => {
-            getTaskView(projectId, taskId)?.conversationTabs.setActiveTab(conversationId);
+            disposers.delete(dispose);
+            focusConversationTab();
           },
           {
             timeout: 10_000,
+            onError: () => {
+              disposers.delete(dispose);
+            },
           }
         );
         disposers.add(dispose);
