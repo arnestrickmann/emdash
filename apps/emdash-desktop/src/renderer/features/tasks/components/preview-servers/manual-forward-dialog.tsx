@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { usePreviewServers } from '@renderer/features/tasks/task-view-context';
 import { Button } from '@renderer/lib/ui/button';
+import { ConfirmButton } from '@renderer/lib/ui/confirm-button';
 import {
   DialogContent,
   DialogContentArea,
@@ -115,9 +116,9 @@ export function ManualForwardDialog({ onClose }: { onClose: () => void }) {
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <ConfirmButton type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Forwarding...' : 'Forward'}
-          </Button>
+          </ConfirmButton>
         </DialogFooter>
       </form>
     </DialogContent>

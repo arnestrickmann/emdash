@@ -1,5 +1,6 @@
 import type { BaseModalProps } from '@renderer/lib/modal/modal-provider';
 import { Button } from '@renderer/lib/ui/button';
+import { ConfirmButton } from '@renderer/lib/ui/confirm-button';
 import {
   DialogContentArea,
   DialogFooter,
@@ -30,7 +31,7 @@ export function UnsavedChangesDialog({ fileName, onSuccess }: Props) {
         <Button variant="outline" onClick={() => onSuccess('discard')}>
           Discard
         </Button>
-        <Button onClick={() => onSuccess('save')}>Save</Button>
+        <ConfirmButton onClick={() => onSuccess('save')}>Save</ConfirmButton>
       </DialogFooter>
     </>
   );

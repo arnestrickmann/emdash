@@ -1,6 +1,7 @@
 import { type BaseModalProps } from '@renderer/lib/modal/modal-provider';
 import { useCloseGuard } from '@renderer/lib/modal/use-close-guard';
 import { Button } from '@renderer/lib/ui/button';
+import { ConfirmButton } from '@renderer/lib/ui/confirm-button';
 import {
   DialogDescription,
   DialogFooter,
@@ -31,7 +32,7 @@ export function ConflictDialog({ filePath, onSuccess }: Props) {
         <Button variant="outline" onClick={() => onSuccess(false)}>
           Keep Mine
         </Button>
-        <Button onClick={() => onSuccess(true)}>Accept Incoming</Button>
+        <ConfirmButton onClick={() => onSuccess(true)}>Accept Incoming</ConfirmButton>
       </DialogFooter>
     </>
   );
